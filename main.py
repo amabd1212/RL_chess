@@ -7,9 +7,10 @@ from utils import save_q_values, load_q_values, plot_rewards, plot_win_rate
 # Parameters
 episodes = 50000
 initial_exploration_rate = 1.0
-exploration_decay = 0.00002
+exploration_decay = 0.0001
+
 min_exploration_rate = 0.01
-learning_rate = 0.8
+learning_rate = 0.05
 discount_factor = 0.95
 save_file = 'q_values.json'
 

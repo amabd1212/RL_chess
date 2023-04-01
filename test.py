@@ -32,18 +32,22 @@ min_exploration_rate = 0.01
 
 # Testing loop
 for game in range(num_games):
-    print(f"Game {game + 1}/{num_games}")
+    #print(f"Game {game + 1}/{num_games}")
+    if (game + 1) % 100 == 0:
+        print(f"Game {game + 1}/{num_games}")
     state = env.reset()
     legal_moves = env.get_legal_moves()
     done = False
     nrmovesInEpisode = 1
-    #print("First board:")
-    #print(env.board)
+    ##print("First board:")
+    ##print(env.board)
     active = 2
     while not done:
         if(active %2 == 0):
             #our agent chooses an action
+            #print(f"legal moves for our agent: {legal_moves}")
             action = agent.choose_action(state, legal_moves)
+            #print(f"moves our agent took: {action}")
             agent.exploration_rate = max(min_exploration_rate, agent.exploration_rate - exploration_decay)
             next_state, done, next_legal_moves= env.step(action)
             nrmovesInEpisode +=1
@@ -51,21 +55,31 @@ for game in range(num_games):
             #print(env.board)
             #print("done after our step:",done)
             if (done):
-                env.get_results(done, 0)
-               # print("terminal after our move")
+                if(env.board.is_checkmate):
+                    #print("Our checkmate")
+                    done = 1
+                elif(env.board.is_variant_draw() or env.board.is_stalemate or env.board.is_insufficient_material() or env.board.is_seventyfive_moves() or env.board.is_fivefold_repetition()):
+                    done = 0
+                ###print("terminal after our move")
                 break
         else:
             #the opponent chooses an random action
-            oppponent_action = opponent_agent.action_choice(next_legal_moves)
+            ##print(f"legal moves for opponent: {legal_moves}")
+            oppponent_action = opponent_agent.action_choice(legal_moves)
+            #print(f"moves our opponent took: {oppponent_action}")
             next_state, done, next_legal_moves= env.step_opponent(oppponent_action)
-         #   print("board after opponents action:")
-          #  print(env.board)
-           # print("done after step_opponent:",done)
+            #print("board after opponents action:")
+            #print(env.board)
+            #print("done after step_opponent:",done)
             if (done):
-                env.get_results(done, 1)
-            #    print("terminal after their move")
+                if(env.board.is_checkmate):
+                    #print("Their checkmate")
+                    done = -1
+                elif(env.board.is_variant_draw() or env.board.is_stalemate or env.board.is_insufficient_material() or env.board.is_seventyfive_moves() or env.board.is_fivefold_repetition()):
+                    done = 0
+                #print("terminal after their move")
                 break
-
+        active +=1
         state = next_state
         legal_moves = next_legal_moves
 

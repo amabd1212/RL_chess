@@ -63,7 +63,7 @@ class ChessEnvironment:
         elif self.board.is_variant_draw() or self.board.is_insufficient_material() or self.board.is_seventyfive_moves() or self.board.is_fivefold_repetition() or self.board.is_variant_loss():
             return -10  # Draw
         elif self.board.is_check():
-            return 1  # Check
+            return -1  # Check
         else:
             return -0.01  # Other moves
 
