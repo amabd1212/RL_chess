@@ -2,6 +2,7 @@ import chess
 from chess_environment import ChessEnvironment
 from rl_agent import RLAgent
 from utils import load_q_values
+import random
 
 # Parameters
 num_games = 1000
@@ -25,23 +26,34 @@ wins = 0
 draws = 0
 losses = 0
 
+def choose_opponent_move(legal_moves):
+    return random.choice(legal_moves)
+
+# Testing loop
 # Testing loop
 for game in range(num_games):
     state = env.reset()
     legal_moves = env.get_legal_moves()
     done = False
+    turn = "white"
 
     while not done:
-        action = agent.choose_action(state, legal_moves)
+        if turn == "white":
+            action = agent.choose_action(state, legal_moves)
+        else:  # turn == "black"
+            action = choose_opponent_move(legal_moves)
+
         next_state, reward, done, next_legal_moves = env.step(action)
 
         state = next_state
         legal_moves = next_legal_moves
+        turn = "black" if turn == "white" else "white"
+
 
     # Record the game result
-    if reward == 10.0:  # Win
+    if reward == 1.0:  # Win
         wins += 1
-    elif reward == -10.0:  # Draw
+    elif reward == -0.5:  # Draw
         draws += 1
     else:  # Loss
         losses += 1
