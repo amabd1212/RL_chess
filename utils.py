@@ -32,3 +32,21 @@ def plot_rewards(reward_history, window_size=100):
     plt.ylabel("Average Reward")
     plt.title(f"Average Reward over {window_size} Episodes")
     plt.show()
+
+def plot_moves(reward_history, window_size=100):
+    moving_average_rewards = [sum(reward_history[i:i+window_size])/window_size for i in range(len(reward_history) - window_size + 1)]
+
+    plt.plot(moving_average_rewards)
+    plt.xlabel("Episode")
+    plt.ylabel("Average Number of Moves")
+    plt.title(f"Average Number of Moves over {window_size} Episodes")
+    plt.show()
+
+def plot_win_rate(reward_history, window_size=100):
+    moving_average_rewards = [sum(reward_history[i:i+window_size])/window_size for i in range(len(reward_history) - window_size + 1)]
+    
+    plt.plot(moving_average_rewards)
+    plt.xlabel("Episode")
+    plt.ylabel("Average Win Rate")
+    plt.title(f"Average Win Rate over {window_size} Episodes")
+    plt.show()

@@ -6,7 +6,7 @@ from utils import save_q_values, load_q_values, plot_rewards
 
 # Parameters
 episodes = 50000
-initial_exploration_rate = 1
+initial_exploration_rate = 1.00
 exploration_decay = 0.05
 # min_exploration_rate = 0.1
 learning_rate = 0.1
@@ -15,9 +15,9 @@ save_file = 'q_values.json'
 
 # Chess endgame scenario (Figure 1)
 initial_position = {
-    'K': chess.C4,
-    'Q': chess.D5,
-    'k': chess.B8
+    'K': chess.C3,
+    'Q': chess.G3,
+    'k': chess.C5
 }
 
 # Initialize the environment and the agent
@@ -54,7 +54,6 @@ for episode in range(episodes):
             action = env.choose_random_move(legal_moves)
         next_state, reward, done, next_legal_moves = env.step(action)
         if reward == 10000:
-            # print("WE WOOON",state,action,next_state)
             win = 1 
             win_total +=1
         if turn == "white":
@@ -77,7 +76,6 @@ for episode in range(episodes):
     # Print progress
     if (episode + 1) % 100 == 0:
         print(f"Episode {episode + 1}/{episodes}, Exploration Rate: {agent.exploration_rate:.4f}")
-        print(win)
         print("Total",win_total)
         win_total =0
     
@@ -87,6 +85,4 @@ save_q_values(agent.q_values, save_file)
 
 # Plot rewards
 plot_rewards(reward_history)
-plot_rewards(win_rate)
-plot_rewards(moves)
 
