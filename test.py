@@ -10,9 +10,9 @@ save_file = 'q_values.json'
 
 # Chess endgame scenario (Figure 1)
 initial_position = {
-    'K': chess.C3,
-    'Q': chess.G3,
-    'k': chess.C5
+    'K': chess.C6,
+    'Q': chess.H2,
+    'k': chess.C8
 }
 
 # Initialize the environment and the agent
@@ -44,16 +44,15 @@ for game in range(num_games):
             action = choose_opponent_move(legal_moves)
 
         next_state, reward, done, next_legal_moves = env.step(action)
-
         state = next_state
         legal_moves = next_legal_moves
         turn = "black" if turn == "white" else "white"
 
 
     # Record the game result
-    if reward == 1.0:  # Win
+    if reward == 10000:  # Win
         wins += 1
-    elif reward == -0.5:  # Draw
+    elif reward == -10000:  # Draw
         draws += 1
     else:  # Loss
         losses += 1

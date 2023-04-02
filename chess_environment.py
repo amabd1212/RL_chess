@@ -6,6 +6,7 @@ class ChessEnvironment:
     def __init__(self, initial_position):
         self.board = chess.Board()
         self.initial_position = initial_position
+        self.move_count = 0
 
     def distance(self, square1, square2):
         x1, y1 = chess.square_file(square1), chess.square_rank(square1)
@@ -14,14 +15,17 @@ class ChessEnvironment:
     
     def reset(self):
         self.board.clear()
+        self.move_count = 0
         for piece, square in self.initial_position.items():
             self.board.set_piece_at(square, chess.Piece.from_symbol(piece))
         return self.get_state()
 
     def step(self, action):
+        self.move_count +=1
+        state= self.get_state()
         self.board.push(action)
         next_state = self.get_state()
-        reward = self.compute_reward()
+        reward = self.compute_reward(state,action)
         done = self.is_terminal()
         legal_moves = list(self.board.legal_moves)
         return next_state, reward, done, legal_moves
@@ -31,38 +35,64 @@ class ChessEnvironment:
         fen_without_clocks = " ".join(fen_parts[:4])
         # You can customize the state representation depending on your needs
         return fen_without_clocks
+    
+    def king_area(self, king_square, enemy_color):
+        area = 0
+        for move in chess.SquareSet(chess.BB_KING_ATTACKS[king_square]):
+            if not self.board.is_attacked_by(enemy_color, move) and not self.board.piece_at(move):
+                area += 1
+        return area
 
-    def compute_reward(self):
-        if self.board.is_checkmate():
-            # print("Win",self.get_state())
-            return 10.0  # Win
-        elif self.board.is_stalemate() or self.board.is_insufficient_material():
-            # print("Stale",self.get_state())
-            return -1  # Draw
-        elif self.board.is_seventyfive_moves() or self.board.is_fivefold_repetition():
-            # print("75",self.get_state())
-            return -1  # Draw
-        elif self.board.is_variant_draw():
-            # print("Draw",self.get_state())
-            return -1  # Draw
+    def compute_reward(self,state,action):
+        white_queen_positions = list(self.board.pieces(chess.QUEEN, chess.WHITE))
+        white_king = self.board.king(chess.WHITE)
+        black_king = self.board.king(chess.BLACK)
+        if white_queen_positions:
+            white_queen = white_queen_positions[0]
         else:
-            # Calculate distances to the goal positions
-            white_king_distance = self.distance(self.board.king(chess.WHITE), chess.C6)
-            black_king_distance = self.distance(self.board.king(chess.BLACK), chess.C8)
+            white_queen = 0
+        if black_king == chess.C8 and white_king == chess.C6 and white_queen == chess.C7:
+            return 10000  # Win
+        elif self.board.is_stalemate() or self.board.is_insufficient_material() or self.board.is_variant_draw() or self.board.is_seventyfive_moves() or self.board.is_fivefold_repetition():
+            return -10000  # Lose
+        else:
+            
 
-            white_queen_positions = list(self.board.pieces(chess.QUEEN, chess.WHITE))
-            # white_rook_positions = list(self.board.pieces(chess.ROOK, chess.WHITE))
-            if not white_queen_positions:
-                return -2  # Large negative reward for losing the queen
+            white_king_target = chess.C6
+            black_king_target = chess.C8
+            white_queen_target = chess.C7
+            area = self.king_area(black_king, chess.WHITE)
+            white_king_distance = self.distance(white_king, white_king_target)
+            black_king_distance = self.distance(black_king, black_king_target)
+            king_2_queen = self.distance(white_king, white_queen)
 
             if white_queen_positions:
-                white_queen_distance = self.distance(white_queen_positions[0], chess.C7)
-                return -0.01 * (white_king_distance + white_queen_distance + black_king_distance)
-            # elif white_rook_positions:
-            #     white_rook_distance = self.distance(white_rook_positions[0], chess.H8)
-            #     return -0.01 * (white_king_distance + white_rook_distance + black_king_distance)
+                white_queen_distance = self.distance(white_queen, white_queen_target)
+                queen_under_attack = self.board.is_attacked_by(chess.BLACK, white_queen_positions[0])
+
             else:
-                return 0
+                white_queen_distance = 0
+                queen_under_attack = False
+            too_far = 0
+            # Encourage the white queen to control squares around the black king
+            queen_control = sum([1 for square in chess.SquareSet(chess.BB_KING_ATTACKS[black_king]) if self.board.is_attacked_by(chess.WHITE, square)])
+            reward = (
+                - 20 * area
+                - 10 * white_king_distance
+                - 5 * white_queen_distance
+                - 10 * black_king_distance
+                - 10 * king_2_queen
+                + 20 * queen_control
+            )
+            # print(state,action,area,white_king_distance,white_queen_distance,queen_control,queen_sacrificed,reward)
+            if queen_under_attack:
+                reward -= 5000 
+                
+            if white_queen == chess.C6 or white_king == chess.C7:
+                reward -= 500
+
+            return reward
+
 
 
 

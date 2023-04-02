@@ -24,9 +24,12 @@ class RLAgent:
         best_move = None
         for move in legal_moves:
             q_value = self._get_q_value(state, move)
-            if q_value > max_q_value:
+            if q_value > max_q_value and q_value != 0:
                 max_q_value = q_value
                 best_move = move
+        if best_move == None:
+            return np.random.choice(legal_moves)
+        # print(state,best_move,max_q_value)
         return best_move
 
     def _get_q_value(self, state, action):
@@ -34,10 +37,13 @@ class RLAgent:
 
     def _max_q_value(self, state, legal_moves):
         max_q_value = float('-inf')
-        for move in legal_moves:
-            q_value = self._get_q_value(state, move)
-            if q_value > max_q_value:
-                max_q_value = q_value
+        if len(legal_moves) != 0 :
+            for move in legal_moves:
+                q_value = self._get_q_value(state, move)
+                if q_value > max_q_value:
+                    max_q_value = q_value
+        else:
+            max_q_value = 0
         return max_q_value
 
     def _update_q_value(self, state, action, current_q_value, target_q_value):
