@@ -5,8 +5,8 @@ from rl_agent import RLAgent
 from utils import save_q_values, load_q_values, plot_rewards
 
 # Parameters
-episodes = 100000
-initial_exploration_rate = 1.00
+episodes = 50000
+initial_exploration_rate = 1
 exploration_decay = 0.05
 # min_exploration_rate = 0.1
 learning_rate = 0.1
@@ -49,7 +49,7 @@ for episode in range(episodes):
             action = agent.choose_action(state, legal_moves)
         else:
             action = env.choose_random_move(legal_moves)
-        # print(state, action)
+        #print(state, action)
         next_state, reward, done, next_legal_moves = env.step(action)
         if reward == 10000:
             # print("WE WOOON",state,action,next_state)
@@ -67,9 +67,10 @@ for episode in range(episodes):
 
     reward_history.append(total_reward)
 
-    # Update exploration rate
-    if (episode + 1) % int(float(episodes)/(initial_exploration_rate/exploration_decay)) == 0:
-         agent.exploration_rate = max(0, agent.exploration_rate - exploration_decay)
+    # Update exploration rate 
+    if initial_exploration_rate != 0:
+        if (episode + 1) % int(0.8 * float(episodes)/(initial_exploration_rate/exploration_decay)) == 0:
+            agent.exploration_rate = max(0, agent.exploration_rate - exploration_decay)
     # Print progress
     if (episode + 1) % 100 == 0:
         print(f"Episode {episode + 1}/{episodes}, Exploration Rate: {agent.exploration_rate:.4f}")
