@@ -33,6 +33,8 @@ except FileNotFoundError:
 win = 0
 win_total = 0
 reward_history = []
+win_rate = []
+moves = []
 
 # Training loop
 for episode in range(episodes):
@@ -41,6 +43,7 @@ for episode in range(episodes):
     done = False
     turn = "white"
     total_reward = 0
+    win = 0
     # print("new game")
     move_count = 0
     while not done:
@@ -49,11 +52,10 @@ for episode in range(episodes):
             action = agent.choose_action(state, legal_moves)
         else:
             action = env.choose_random_move(legal_moves)
-        #print(state, action)
         next_state, reward, done, next_legal_moves = env.step(action)
         if reward == 10000:
             # print("WE WOOON",state,action,next_state)
-            win +=1 
+            win = 1 
             win_total +=1
         if turn == "white":
             agent.learn(state, action, reward, next_state, next_legal_moves)
@@ -64,7 +66,8 @@ for episode in range(episodes):
         state = next_state
         legal_moves = next_legal_moves
         total_reward += reward    
-
+    win_rate.append(win)
+    moves.append(move_count)
     reward_history.append(total_reward)
 
     # Update exploration rate 
@@ -76,7 +79,7 @@ for episode in range(episodes):
         print(f"Episode {episode + 1}/{episodes}, Exploration Rate: {agent.exploration_rate:.4f}")
         print(win)
         print("Total",win_total)
-        win =0
+        win_total =0
     
 
 # Save Q-values
@@ -84,3 +87,6 @@ save_q_values(agent.q_values, save_file)
 
 # Plot rewards
 plot_rewards(reward_history)
+plot_rewards(win_rate)
+plot_rewards(moves)
+

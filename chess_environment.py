@@ -63,7 +63,10 @@ class ChessEnvironment:
             white_queen_target = chess.C7
             area = self.king_area(black_king, chess.WHITE)
             white_king_distance = self.distance(white_king, white_king_target)
-            black_king_distance = 8 - chess.square_rank(black_king)
+            black_king_distance = self.distance(white_king, white_king_target)
+            black_king_rank = 7 - chess.square_rank(black_king)
+            white_king_rank = abs(5 - chess.square_rank(white_king))
+            white_queen_rank = abs(6 - chess.square_rank(white_queen))
             king_2_queen = self.distance(white_king, white_queen)
 
             if white_queen_positions:
@@ -76,14 +79,17 @@ class ChessEnvironment:
             too_far = 0
             # Encourage the white queen to control squares around the black king
             queen_control = 8 - sum([1 for square in chess.SquareSet(chess.BB_KING_ATTACKS[black_king]) if self.board.is_attacked_by(chess.WHITE, square)])
+
             reward = (
                 - 20 * area
+                - 100 * (black_king_rank + white_king_rank + white_queen_rank)
                 - 10 * white_king_distance
                 - 5 * white_queen_distance
                 - 10 * black_king_distance
                 - 10 * king_2_queen
                 - 20 * queen_control
             )
+
             # print(state,action,area,white_king_distance,white_queen_distance,queen_control,queen_sacrificed,reward)
             if queen_under_attack:
                 reward -= 5000 

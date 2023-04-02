@@ -5,19 +5,19 @@ from utils import load_q_values
 import random
 
 # Parameters
-num_games = 1000
+num_games = 5
 save_file = 'q_values.json'
 
 # Chess endgame scenario (Figure 1)
 initial_position = {
-    'K': chess.C6,
-    'Q': chess.H2,
-    'k': chess.C8
+    'K': chess.C3,
+    'Q': chess.G3,
+    'k': chess.C5
 }
 
 # Initialize the environment and the agent
 env = ChessEnvironment(initial_position)
-agent = RLAgent(learning_rate=0.8, exploration_rate=0.0, discount_factor=0.99)
+agent = RLAgent(learning_rate=0.1, exploration_rate=0.0, discount_factor=0.99)
 
 # Load the trained Q-values
 agent.q_values = load_q_values(save_file)
@@ -44,9 +44,11 @@ for game in range(num_games):
             action = choose_opponent_move(legal_moves)
 
         next_state, reward, done, next_legal_moves = env.step(action)
+        print(state, action)
         state = next_state
         legal_moves = next_legal_moves
         turn = "black" if turn == "white" else "white"
+    print("new game")
 
 
     # Record the game result
