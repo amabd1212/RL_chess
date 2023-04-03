@@ -1,4 +1,6 @@
 # Reinforcement Learning Chess Endgame
+Created by: Amir Abdul Aziz(s4019555)  and Mohamed Hassan(s4327276)
+
 
 This project demonstrates the application of Q-learning and ε-greedy exploration to train an agent to play chess endgame scenarios. The agent is trained on a specific endgame scenario and learns an optimal policy for playing the game.
 

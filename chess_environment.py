@@ -6,6 +6,7 @@ class ChessEnvironment:
     def __init__(self, initial_position):
         self.board = chess.Board()
         self.initial_position = initial_position
+        self.move_count = 0
 
     def distance(self, square1, square2):
         x1, y1 = chess.square_file(square1), chess.square_rank(square1)
@@ -14,11 +15,13 @@ class ChessEnvironment:
     
     def reset(self):
         self.board.clear()
+        self.move_count = 0
         for piece, square in self.initial_position.items():
             self.board.set_piece_at(square, chess.Piece.from_symbol(piece))
         return self.get_state()
 
     def step(self, action):
+        self.move_count +=1
         state= self.get_state()
         self.board.push(action)
         next_state = self.get_state()
@@ -48,7 +51,7 @@ class ChessEnvironment:
 
         white_king_target = chess.C6
         black_king_target = chess.C8
-        white_queen_target = chess.C8
+        white_queen_target = chess.C7
 
         if white_queen_positions:
             white_queen = white_queen_positions[0]
@@ -102,7 +105,7 @@ class ChessEnvironment:
                 reward -= 5000 
 
             # Penalize if the white queen or king are in the wrong positions
-            if white_queen == chess.C6 or white_king == chess.C7:
+            if white_queen == white_king_target or white_king == white_queen_target:
                 reward -= 1000
 
             # Penalize if the white queen is in a rank higher than the black king
